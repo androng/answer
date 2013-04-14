@@ -7,18 +7,18 @@
 #define CE 9
 #define IRQ 8
 
-#define MAX_RECORDS 150
-#define MAC_SIZE 3
-#define DATA_SIZE 1
+#define MAX_RECORDS 15
+#define MAC_SIZE 5
+#define DATA_SIZE 10
 #define PACKET_SIZE (MAC_SIZE + DATA_SIZE)
 #define NUM_MACS (sizeof(mac) / MAC_SIZE)
 
 #define STRING(x) (strcpy_P(tmp_string, (char *)x))
 #define PRINT_STRING(y) (Serial.print(STRING(y)))
 
-byte clickerMasterMAC[MAC_SIZE] = { 0x56, 0x34, 0x12 };
-byte myMAC[MAC_SIZE] = { 0x99, 0x88, 0x77 };
-byte oppositeMyMAC[MAC_SIZE] = { 0x77, 0x88, 0x99 };
+byte clickerMasterMAC[MAC_SIZE] = { 0xD4, 0x73, 0xDE, 0xCA, 0xDE };
+byte myMAC[MAC_SIZE] = { 0x99, 0x88, 0x77, 0x00, 0x00 };
+byte oppositeMyMAC[MAC_SIZE] = { 0x77, 0x88, 0x99, 0x00, 0x00 };
 
 struct {
   byte MAC[MAC_SIZE];
@@ -43,11 +43,12 @@ void setup() {
   pinMode (CSN, OUTPUT);
   pinMode (CE, OUTPUT);
   pinMode (IRQ, INPUT);
+  digitalWrite(IRQ, HIGH);
   SPI.begin();
   SPI.setBitOrder(MSBFIRST);
   SPI.setClockDivider(SPI_CLOCK_DIV2);
   SPI.setDataMode(SPI_MODE0);
-  channel = 47;
+  channel = 7;
   help();
   receiveAsClickerMasterStart();
   newQuestion();

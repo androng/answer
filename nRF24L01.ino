@@ -10,6 +10,28 @@ void readAllRegisters(){
     tmp = readByte[0];
     Serial.println(tmp, BIN);
   }
+  
+  /* Read the RX and TX address registers */
+  for(int i = 10; i < 0x11; i++){
+    digitalSpiRead(R_REGISTER | i, readByte, 5);
+    Serial.print(i, HEX);
+    PRINT_STRING(Colen);
+    
+    Serial.print(readByte[0], HEX);
+    Serial.print(readByte[1], HEX);
+    Serial.print(readByte[2], HEX);
+    Serial.print(readByte[3], HEX);
+    Serial.println(readByte[4], HEX);
+    
+  }
+  
+  for(int i = 0x11; i < 0x18; i++){
+    digitalSpiRead(R_REGISTER | i, readByte, 1);
+    Serial.print(i, HEX);
+    PRINT_STRING(Colen);
+    tmp = readByte[0];
+    Serial.println(tmp, BIN);
+  }
   PRINT_STRING(RegistersN);
 }
 

@@ -51,21 +51,30 @@ void compileStats(){
 }
 
 void recordAnswer(){
-  byte buf[PACKET_SIZE];
+  byte buf[DATA_SIZE] = {0};
   
-  digitalSpiRead(R_RX_PAYLOAD, buf, PACKET_SIZE);
+  digitalSpiRead(R_RX_PAYLOAD, buf, DATA_SIZE);
   digitalSpiWrite(W_REGISTER | STATUS, 0x70);    // Clear interrupts
-  for(int i = 0; i < numAnswers; i++){
-    if(memcmp(buf, record[i].MAC, MAC_SIZE) == 0){
-      memcpy(record[i].answer, buf+MAC_SIZE, DATA_SIZE);
-      return;
-    }
+  
+  /* Read contents of payload */
+  Serial.print("R: ");
+  for(byte j = 0; j < DATA_SIZE; j++){
+      Serial.print("\t ");
+      Serial.print(buf[j], HEX);
   }
-  if(numAnswers < MAX_RECORDS){
-    memcpy(record[numAnswers].MAC, buf, MAC_SIZE);
-    memcpy(record[numAnswers].answer, buf+MAC_SIZE, DATA_SIZE);
-    numAnswers++;
-  }
+  Serial.println();
+  
+//  for(int i = 0; i < numAnswers; i++){
+//    if(memcmp(buf, record[i].MAC, MAC_SIZE) == 0){
+//      memcpy(record[i].answer, buf+MAC_SIZE, DATA_SIZE);
+//      return;
+//    }
+//  }
+//  if(numAnswers < MAX_RECORDS){
+//    memcpy(record[numAnswers].MAC, buf, MAC_SIZE);
+//    memcpy(record[numAnswers].answer, buf+MAC_SIZE, DATA_SIZE);
+//    numAnswers++;
+//  }
 }
 
 void receiveAsClickerMasterStart(){
@@ -75,11 +84,11 @@ void receiveAsClickerMasterStart(){
     delay(2);
     digitalSpiWrite(W_REGISTER | CONFIG, 0x3F);    // 2-bit CRC, Receive mode
     digitalSpiWrite(W_REGISTER | EN_RXADDR, 0x01); // Only enable rx data pipe 1
-    digitalSpiWrite(W_REGISTER | RX_PW_P0, PACKET_SIZE);     // Set size of Receive pipe
-    digitalSpiWrite(W_REGISTER | EN_AA, 0x00);     // Disable Auto-Acknowledge on all pipes
+    digitalSpiWrite(W_REGISTER | RX_PW_P0, DATA_SIZE);     // Set size of Receive pipe
+    digitalSpiWrite(W_REGISTER | EN_AA, 0x01);     // Enable Auto-Acknowledge on pipe 0
     digitalSpiWrite(W_REGISTER | RF_CH, channel);  // Select the channel to receive on
-    digitalSpiWrite(W_REGISTER | SETUP_AW, 0x01);  // Select 3-byte MAC length
-    digitalSpiWrite(W_REGISTER | RF_SETUP, 0x06);  // Set data rate to 1Mbps at high power
+    digitalSpiWrite(W_REGISTER | SETUP_AW, 0x03);  // Select 5-byte MAC length
+    digitalSpiWrite(W_REGISTER | RF_SETUP, 0x0F);  // Set data rate to 2Mbps at high power
     digitalSpiWrite(FLUSH_RX);                     // Flush the receive buffer
     digitalSpiWrite(W_REGISTER | STATUS, 0x70);    // Clear interrupts
     digitalSpiWrite(W_REGISTER | RX_ADDR_P0, clickerMasterMAC, MAC_SIZE);  // Set the MAC address to listen on
